@@ -8,6 +8,10 @@ jobs:
   static-analysis:
     name: static-analysis
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -37,6 +41,10 @@ jobs:
   dev-unit-test:
     name: dev-unit-test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+        
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
