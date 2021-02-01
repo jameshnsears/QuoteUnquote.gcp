@@ -1,0 +1,9 @@
+bandit
+Flask
+flake8
+google-cloud-firestore
+google-cloud-logging
+pylama
+pylint
+pytest
+pytest-cov

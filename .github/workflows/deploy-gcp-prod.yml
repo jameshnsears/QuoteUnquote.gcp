@@ -1,0 +1,66 @@
+name: deploy-gcp-prod
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  prod-deloyment:
+    environment:
+      name: gcp-production
+      url: https://console.cloud.google.com/functions
+    name: prod-deloyment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: install into prod
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_PRODUCTION }}
+        run: |
+          cd src
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > service-account.json
+          gcloud config list
+          gcloud auth activate-service-account --key-file service-account.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID_PRODUCTION }}
+          gcloud config set functions/region us-central1
+          gcloud config list
+          gcloud functions delete save --quiet || true
+          gcloud functions deploy save --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=service-account.json --runtime python37 --trigger-http --allow-unauthenticated
+          gcloud functions describe save
+          gcloud functions delete receive --quiet || true
+          gcloud functions deploy receive --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=service-account.json --runtime python37 --trigger-http --allow-unauthenticated
+          gcloud functions describe receive
+
+  prod-deloyment-test:
+    name: prod-deloyment-test
+    needs: [ prod-deloyment ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: test prod /save
+        run: |
+          status_code=$(curl -X POST --write-out %{http_code} \
+            https://us-central1-${{ secrets.GCP_PROJECT_ID_PRODUCTION }}.cloudfunctions.net/save \
+            -H "Content-Type:application/json" \
+            -d '{"code": "012345672e", "digests": ["p1", "p2", "p3"]}')
+          if [[ "$status_code" -ne 200 ]] ; then
+            echo 1
+          else
+            exit 0
+          fi
+
+      - name: test prod /receive
+        run: |
+          sleep 20
+          digests=$(curl -X POST \
+            https://us-central1-${{ secrets.GCP_PROJECT_ID_PRODUCTION }}.cloudfunctions.net/receive \
+            -H "Content-Type:application/json" \
+            -d '{"code": "012345672e"}')
+          if [[ "${digests}" == "[\"p1\",\"p2\", \"p3\"]" ]]; then
+            echo 1
+          else
+            exit 0
+          fi

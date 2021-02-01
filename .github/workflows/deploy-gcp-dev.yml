@@ -1,0 +1,125 @@
+name: deploy-gcp-dev
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-analysis:
+    name: static-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: venv cache
+        uses: actions/cache@v2
+        with:
+          path: $HOME/venv
+          key: requirements.txt-${{ hashFiles('src/requirements.txt') }}
+
+      - name: setup venv
+        run: |
+          python3 -m venv $HOME/venv
+          source $HOME/venv/bin/activate
+          pip3 install --upgrade pip setuptools
+          pip3 install -r src/requirements.txt
+
+      - name: flake8 + pylama
+        run: |
+          export PYTHONPATH=src:test:$PYTHONPATH
+          source $HOME/venv/bin/activate
+          flake8 src test
+          pylama src test
+
+  dev-unit-test:
+    name: dev-unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: venv cache
+        uses: actions/cache@v2
+        with:
+          path: $HOME/venv
+          key: requirements.txt-${{ hashFiles('src/requirements.txt') }}
+
+      - name: setup venv
+        run: |
+          python3 -m venv $HOME/venv
+          source $HOME/venv/bin/activate
+          pip3 install --upgrade pip setuptools
+          pip3 install -r src/requirements.txt
+
+      - name: pytest dev
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DEVELOPMENT }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > config/dev-service-account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=config/dev-service-account.json
+          export PYTHONPATH=src:test:$PYTHONPATH
+          source $HOME/venv/bin/activate
+          pytest test
+
+  dev-deployment:
+    name: dev-deployment
+    needs: [static-analysis, dev-unit-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: install into dev
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DEVELOPMENT }}
+        run: |
+          cd src
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > service-account.json
+          gcloud config list
+          gcloud auth activate-service-account --key-file service-account.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID_DEVELOPMENT }}
+          gcloud config set functions/region us-central1
+          gcloud config list
+          gcloud functions delete save --quiet || true
+          gcloud functions deploy save --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=service-account.json --runtime python37 --trigger-http --allow-unauthenticated
+          gcloud functions describe save
+          gcloud functions delete receive --quiet || true
+          gcloud functions deploy receive --set-env-vars GOOGLE_APPLICATION_CREDENTIALS=service-account.json --runtime python37 --trigger-http --allow-unauthenticated
+          gcloud functions describe receive
+
+  dev-deployment-test:
+    name: dev-deployment-test
+    needs: [ dev-deployment ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: test prod /save
+        run: |
+          status_code=$(curl -X POST --write-out %{http_code} \
+            https://us-central1-${{ secrets.GCP_PROJECT_ID_DEVELOPMENT }}.cloudfunctions.net/save \
+            -H "Content-Type:application/json" \
+            -d '{"code": "012345672e", "digests": ["d1", "d2", "d3"]}')
+          if [[ "$status_code" -ne 200 ]] ; then
+            echo 1
+          else
+            exit 0
+          fi
+
+      - name: test prod /receive
+        run: |
+          sleep 20
+          digests=$(curl -X POST \
+            https://us-central1-${{ secrets.GCP_PROJECT_ID_DEVELOPMENT }}.cloudfunctions.net/receive \
+            -H "Content-Type:application/json" \
+            -d '{"code": "012345672e"}')
+          if [[ "${digests}" == "[\"d1\",\"d2\", \"d3\"]" ]]; then
+            echo 1
+          else
+            exit 0
+          fi

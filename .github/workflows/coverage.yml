@@ -1,0 +1,35 @@
+name: coverage
+
+on:
+  push:
+    branches:
+  pull_request:
+    branches:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: create coverage info
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_DEVELOPMENT }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > config/dev-service-account.json
+          export VENV=venv
+          python3 -m venv $VENV
+          source $VENV/bin/activate
+          pip3 install --upgrade pip setuptools
+          pip3 install -r requirements.txt
+          export GOOGLE_APPLICATION_CREDENTIALS=config/dev-service-account.json
+          export PYTHONPATH=src:test:$PYTHONPATH
+          pytest --cov-report=xml --cov=. test/
+
+      - name: publish
+        run: |
+          set -x
+          bash <(curl https://codecov.io/bash) -t ${{ secrets.CODECOVIO_TOKEN }} -f coverage.xml
