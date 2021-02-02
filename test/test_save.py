@@ -1,8 +1,8 @@
 from unittest.mock import Mock
 
 from storage import storage_facade
-from validation import request_validation
 from storage.unable_to_save_exception import UnableToSaveException
+from validation import request_validation
 
 
 def test_http_get_not_supported(client):

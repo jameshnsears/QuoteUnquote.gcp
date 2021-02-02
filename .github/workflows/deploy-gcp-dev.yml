@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [ 3.7, 3.8 ]
 
     steps:
       - name: Checkout Code
@@ -43,8 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
-        
+        python-version: [ 3.7, 3.8 ]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -76,7 +76,7 @@ jobs:
 
   dev-deployment:
     name: dev-deployment
-    needs: [static-analysis, dev-unit-test]
+    needs: [ static-analysis, dev-unit-test ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
