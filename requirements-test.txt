@@ -1,0 +1,6 @@
+bandit
+flake8
+pylama
+pylint
+pytest
+pytest-cov

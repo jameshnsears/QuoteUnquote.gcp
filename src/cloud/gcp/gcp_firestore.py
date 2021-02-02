@@ -2,8 +2,8 @@ from datetime import datetime
 
 from google.cloud import firestore
 
-from utils import logging_facade
 from storage.unable_to_save_exception import UnableToSaveException
+from utils import logging_facade
 
 
 def save(code, digests):

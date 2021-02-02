@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request
 
 from main import save, receive
@@ -16,4 +18,4 @@ def gcp_receive():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
