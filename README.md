@@ -149,7 +149,7 @@ gcloud run deploy quoteunquote --image gcr.io/${GCP_PROJECT_ID_DEVELOPMENT}/quot
 
 ```text
 curl -X POST \
-  https://quoteunquote-<hashed id>uc.a.run.app/receive \
+  https://quoteunquote-<hashed id>-uc.a.run.app/receive \
   -H "Content-Type:application/json" \
   -d '{"code": "012345672e"}'
 ```
