@@ -29,6 +29,7 @@ jobs:
           python3 -m venv $HOME/venv
           source $HOME/venv/bin/activate
           pip3 install --upgrade pip setuptools
+          pip3 install -r requirements-test.txt
           pip3 install -r src/requirements.txt
 
       - name: flake8 + pylama
@@ -62,6 +63,7 @@ jobs:
           python3 -m venv $HOME/venv
           source $HOME/venv/bin/activate
           pip3 install --upgrade pip setuptools
+          pip3 install -r requirements-test.txt
           pip3 install -r src/requirements.txt
 
       - name: pytest dev
