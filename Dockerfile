@@ -6,7 +6,7 @@ RUN mkdir /app
 
 COPY config/dev-service-account.json /app
 COPY config/prod-service-account.json /app
-ADD src /app
+COPY src /app
 
 RUN pip install -r /app/requirements.txt
 

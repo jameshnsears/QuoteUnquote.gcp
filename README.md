@@ -1,4 +1,4 @@
-# GCP Setup
+# GCP Functions & Cloud Run 
 
 NOTE: overlap between:
 
@@ -73,7 +73,9 @@ gcloud services enable logging.googleapis.com
 
 * run 'pytest gcp dev'
 
-### 5.2. curl - localhost + Firestore in GCP
+### 5.2. curl - localhost HTTP using remote Firestore in GCP
+
+* integration test, of remote functions HTTP, in GitHub workflow
 
 ```text
 export GOOGLE_APPLICATION_CREDENTIALS=config/dev-service-account.json
@@ -92,17 +94,14 @@ curl -X POST \
 
 ---
 
-## 6. google samples
+## 6. Cloud Run - using function src in docker container
 
-* <https://github.com/GoogleCloudPlatform/python-docs-samples/tree/master/functions>
-* <https://github.com/GoogleCloudPlatform/python-docs-samples/tree/master/run>
-* <https://cloud.google.com/community/tutorials/building-flask-api-with-cloud-firestore-and-deploying-to-cloud-run>
+* NOTE: azure has a similar container offering:
+  * <https://docs.microsoft.com/en-us/azure/app-service/tutorial-custom-container?pivots=container-linux>
+  * <https://docs.microsoft.com/en-us/azure/app-service/quickstart-python?tabs=bash&pivots=python-framework-flask>
+  * <https://azure.microsoft.com/en-gb/services/app-service/>
 
----
-
-## 7. Cloud Run - functions in container
-
-### 7.1. Build image
+### 6.1. Build image
 
 ```text
 docker images
@@ -111,10 +110,11 @@ docker build --tag quoteunquote:latest .
 docker run -it quoteunquote:latest sh
 ```
 
-### 7.2. Test container locally
+### 6.2. Test container locally (using remote Firestore)
 
 ```text
 docker ps -a
+docker rm <id>
 docker run --rm -p 9090:8080 -e PORT=8080 -e \
     GOOGLE_APPLICATION_CREDENTIALS=dev-service-account.json \
     quoteunquote:latest
@@ -128,9 +128,9 @@ docker stop <id>
 docker rm <id>
 ```
 
-### 7.3. Deploy to Cloud Run
+### 6.3. Deploy to Cloud Run
 
-* another Service Account roles:
+* additional Service Account roles:
     * Cloud Run Admin
     * Cloud Run Service Agent
 
@@ -145,7 +145,7 @@ gcloud run deploy quoteunquote --image gcr.io/${GCP_PROJECT_ID_DEVELOPMENT}/quot
   --set-env-vars=GOOGLE_APPLICATION_CREDENTIALS=/app/dev-service-account.json
 ```
 
-#### 7.3.1. Test container remotely
+#### 7.3.1. Integration Test
 
 ```text
 curl -X POST \
