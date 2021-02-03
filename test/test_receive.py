@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from storage import storage_facade
+from storage import storage_adapter
 from validation import request_validation
 
 
@@ -24,7 +24,7 @@ def test_valid_request_but_unknown_code(client):
 
 def test_valid_request(client):
     # NOTE: it takes n seconds for Firestore database to be viewable
-    response = client.post('/receive', json={'code': storage_facade.DEFAULT_CODE})
+    response = client.post('/receive', json={'code': storage_adapter.DEFAULT_CODE})
     assert response.is_json
-    assert response.data == jsonify(storage_facade.DEFAULT_DIGESTS).data
+    assert response.data == jsonify(storage_adapter.DEFAULT_DIGESTS).data
     assert response.status_code == 200

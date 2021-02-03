@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from storage import storage_facade
+from storage import storage_adapter
 from storage.unable_to_save_exception import UnableToSaveException
 from validation import request_validation
 
@@ -45,14 +45,14 @@ def test_invalid_code(client):
 
 
 def test_valid_code_but_missing_digests(client):
-    response = client.post('/save', json={'code': storage_facade.DEFAULT_CODE})
+    response = client.post('/save', json={'code': storage_adapter.DEFAULT_CODE})
     assert response.json['error'] == request_validation.ERROR_JSON_NOT_VALID
     assert response.json['reason'] == request_validation.REASON_NO_DIGESTS
     assert response.status_code == 400
 
 
 def test_valid_code_but_digests_length(client):
-    response = client.post('/save', json={'code': storage_facade.DEFAULT_CODE, 'digests': []})
+    response = client.post('/save', json={'code': storage_adapter.DEFAULT_CODE, 'digests': []})
     assert response.json['error'] == request_validation.ERROR_JSON_NOT_VALID
     assert response.json['reason'] == request_validation.REASON_LENGTH_DIGESTS
     assert response.status_code == 400
@@ -60,14 +60,14 @@ def test_valid_code_but_digests_length(client):
 
 def test_valid_request(client):
     response = client.post('/save',
-                           json={'code': storage_facade.DEFAULT_CODE, 'digests': storage_facade.DEFAULT_DIGESTS})
+                           json={'code': storage_adapter.DEFAULT_CODE, 'digests': storage_adapter.DEFAULT_DIGESTS})
     assert not response.is_json
     assert response.status_code == 200
 
 
 def test_unable_to_save(client):
-    storage_facade.save = Mock(side_effect=UnableToSaveException())
+    storage_adapter.save = Mock(side_effect=UnableToSaveException())
     response = client.post('/save',
-                           json={'code': storage_facade.DEFAULT_CODE, 'digests': storage_facade.DEFAULT_DIGESTS})
+                           json={'code': storage_adapter.DEFAULT_CODE, 'digests': storage_adapter.DEFAULT_DIGESTS})
     assert response.json['error'] == request_validation.ERROR_UNABLE_TO_SAVE
     assert response.status_code == 400
