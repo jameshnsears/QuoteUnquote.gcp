@@ -1,4 +1,4 @@
-# GCP Functions & Cloud Run 
+# GCP Functions & Cloud Run
 
 NOTE: overlap between:
 
