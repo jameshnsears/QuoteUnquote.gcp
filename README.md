@@ -35,18 +35,18 @@ gcloud init
 ### 2.1. Create Firestore instance
 
 * Create Firestore
-    * Native mode instance
-    * eur3 (multi region)
-    * favourites_collection
+  * Native mode instance
+  * eur3 (multi region)
+  * favourites_collection
 
 ### 2.2. Create Service Account
 
 * create Service Account with roles:
-    * Cloud Functions Admin
-    * Firebase Admin SDK Administrator Service Agent
-    * Service Account Token Creator
-    * Service Account User
-    * Logs Writer
+  * Cloud Functions Admin
+  * Firebase Admin SDK Administrator Service Agent
+  * Service Account Token Creator
+  * Service Account User
+  * Logs Writer
 * export JSON key of Service Account
 
 ## 3. In cli, for project, do one off tasks
@@ -120,7 +120,7 @@ docker run --rm -p 9090:8080 -e PORT=8080 -e \
     quoteunquote:latest
 
 curl -X POST \
-  http://0.0.0.0:9090/receive \
+  http://127.0.0.1:9090/receive \
   -H "Content-Type:application/json" \
   -d '{"code": "012345672e"}'
 
@@ -131,8 +131,8 @@ docker rm <id>
 ### 6.3. Deploy to Cloud Run
 
 * additional Service Account roles:
-    * Cloud Run Admin
-    * Cloud Run Service Agent
+  * Cloud Run Admin
+  * Cloud Run Service Agent
 
 ```text
 docker images
