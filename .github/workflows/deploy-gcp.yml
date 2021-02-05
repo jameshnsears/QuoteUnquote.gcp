@@ -134,7 +134,7 @@ jobs:
             exit 0
           fi
 
-  prod-deloyment:
+  prod-deployment:
     environment:
       name: gcp-production
       url: https://console.cloud.google.com/functions
