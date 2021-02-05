@@ -1,5 +1,3 @@
-from flask import jsonify
-
 from storage import storage_adapter
 from validation import request_validation
 
