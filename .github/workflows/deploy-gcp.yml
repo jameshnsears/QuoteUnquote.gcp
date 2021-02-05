@@ -138,7 +138,7 @@ jobs:
     environment:
       name: gcp-production
       url: https://console.cloud.google.com/functions
-    name: prod-deloyment
+    name: prod-deployment
     needs: [ dev-deployment-test ]
     runs-on: ubuntu-latest
     steps:
