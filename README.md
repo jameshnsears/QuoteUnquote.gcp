@@ -67,6 +67,8 @@ gcloud services enable logging.googleapis.com
 
 * base64 config/dev-service-account.json
 
+---
+
 ## 5. Test
 
 ### 5.1. pycharm
@@ -94,7 +96,7 @@ curl -X POST \
 
 ---
 
-## 6. Cloud Run - using function src in docker container
+## 6. (Optional) Cloud Run - using function src in docker container
 
 * NOTE: azure has a similar container offering:
   * <https://docs.microsoft.com/en-us/azure/app-service/tutorial-custom-container?pivots=container-linux>
