@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from flask import jsonify
 from google.cloud import firestore
 
 from storage.unable_to_save_exception import UnableToSaveException
@@ -21,7 +22,7 @@ def retrieve(code):
 
     document = _get_collection().document(code).get()
     if document.exists:
-        return document.to_dict()['digests']
+        return jsonify({'digests': document.to_dict()['digests']})
 
     return None
 

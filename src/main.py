@@ -1,4 +1,4 @@
-from flask import Response, jsonify
+from flask import Response
 
 from storage import storage_adapter
 from storage.unable_to_save_exception import UnableToSaveException
@@ -24,6 +24,6 @@ def receive(request):
 
     retrieved_digests = storage_adapter.retrieve(request)
     if retrieved_digests is not None:
-        return jsonify(retrieved_digests), 200
+        return retrieved_digests, 200
     else:
         return request_validation.error_with_request(request_validation.REASON_NO_DIGESTS_FOR_CODE)
