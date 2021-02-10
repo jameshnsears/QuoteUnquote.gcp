@@ -147,7 +147,7 @@ gcloud run deploy quoteunquote --image gcr.io/${GCP_PROJECT_ID_DEVELOPMENT}/quot
   --set-env-vars=GOOGLE_APPLICATION_CREDENTIALS=/app/dev-service-account.json
 ```
 
-#### 7.3.1. Integration Test
+#### 6.3.1. Integration Test
 
 ```text
 curl -X POST \
