@@ -1,11 +1,11 @@
-# GCP Functions & Cloud Run
+# GCP Functions & (optional) Cloud Run
 
 NOTE: overlap between:
 
 * <https://console.cloud.google.com/home/dashboard>
 * <https://console.firebase.google.com>
 
-## 1. Install GCP cli locally - Ubuntu 20.04
+## 1. Install GCP cli locally - Debian/Ubuntu
 
 ```bash
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] \
